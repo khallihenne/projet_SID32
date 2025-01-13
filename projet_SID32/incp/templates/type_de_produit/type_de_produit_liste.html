@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Prix{% endblock %}
+
+{% block content %}
+<h2>Liste des Prix</h2>
+<a href="{% url 'price_create' %}" class="btn btn-success mb-3">Ajouter un Prix</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Valeur</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for price in object_list %}
+        <tr>
+            <td>{{ price.id }}</td>
+            <td>{{ price.name }}</td>
+            <td>{{ price.value }}</td>
+            <td>
+                <a href="{% url 'price_update' price.id %}" class="btn btn-primary btn-sm">Modifier</a>
+                <a href="{% url 'price_delete' price.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

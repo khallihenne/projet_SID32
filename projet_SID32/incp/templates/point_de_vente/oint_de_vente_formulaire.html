@@ -1,0 +1,8 @@
+{% block content %}
+  <h2>Formulaire Point de Vente</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Soumettre</button>
+  </form>
+{% endblock %}

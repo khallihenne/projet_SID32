@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon Application{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/scripts.js' %}" defer></script>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <ul class="nav-links">
+                    <li><a href="{% url 'wilaya_liste' %}">Wilayas</a></li>
+                    <li><a href="{% url 'moughataa_liste' %}">Moughataas</a></li>
+                    <li><a href="{% url 'commune_liste' %}">Communes</a></li>
+                    <li><a href="{% url 'type_de_produit_liste' %}">Types de Produit</a></li>
+                    <li><a href="{% url 'produit_liste' %}">Produits</a></li>
+                    <li><a href="{% url 'point_de_vente_liste' %}">Points de Vente</a></li>
+                    <li><a href="{% url 'prix_de_produit_liste' %}">Prix des Produits</a></li>
+                    <li><a href="{% url 'panier_liste' %}">Paniers</a></li>
+                    <li><a href="{% url 'produit_de_panier_liste' %}">Produits dans le Panier</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <div class="container">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Mon Application. Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

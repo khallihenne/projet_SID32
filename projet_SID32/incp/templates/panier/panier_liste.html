@@ -1,0 +1,21 @@
+{% block content %}
+  <h2>Liste des Paniers</h2>
+  <a href="{% url 'panier_create' %}">Ajouter un Panier</a>
+  <table>
+    <tr>
+      <th>User</th>
+      <th>Date de Création</th>
+      <th>Actions</th>
+    </tr>
+    {% for panier in object_list %}
+      <tr>
+        <td>{{ panier.user.username }}</td>
+        <td>{{ panier.date_created }}</td>
+        <td>
+          <a href="{% url 'panier_update' panier.pk %}">Modifier</a>
+          <a href="{% url 'panier_delete' panier.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

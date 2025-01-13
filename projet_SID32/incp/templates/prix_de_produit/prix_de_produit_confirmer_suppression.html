@@ -1,0 +1,9 @@
+{% block content %}
+  <h2>Confirmer la suppression</h2>
+  <form method="post">
+    {% csrf_token %}
+    <p>Êtes-vous sûr de vouloir supprimer ce Prix de Produit ?</p>
+    <button type="submit">Oui</button>
+    <a href="{% url 'prixdeproduit_list' %}">Annuler</a>
+  </form>
+{% endblock %}

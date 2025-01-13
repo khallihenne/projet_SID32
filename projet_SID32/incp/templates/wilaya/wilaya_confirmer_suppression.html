@@ -1,0 +1,9 @@
+{% block content %}
+  <h2>Confirmer la suppression</h2>
+  <form method="post">
+    {% csrf_token %}
+    <p>Êtes-vous sûr de vouloir supprimer cette Wilaya ?</p>
+    <button type="submit">Oui</button>
+    <a href="{% url 'wilaya_list' %}">Annuler</a>
+  </form>
+{% endblock %}

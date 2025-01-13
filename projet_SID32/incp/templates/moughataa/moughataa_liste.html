@@ -1,0 +1,23 @@
+{% block content %}
+  <h2>Liste des Moughataa</h2>
+  <a href="{% url 'moughataa_create' %}">Ajouter un Moughataa</a>
+  <table>
+    <tr>
+      <th>Code</th>
+      <th>Label</th>
+      <th>Wilaya</th>
+      <th>Actions</th>
+    </tr>
+    {% for moughataa in object_list %}
+      <tr>
+        <td>{{ moughataa.code }}</td>
+        <td>{{ moughataa.label }}</td>
+        <td>{{ moughataa.wilaya.name }}</td>
+        <td>
+          <a href="{% url 'moughataa_update' moughataa.pk %}">Modifier</a>
+          <a href="{% url 'moughataa_delete' moughataa.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% block content %}
+  <h2>Liste des Points de Vente</h2>
+  <a href="{% url 'pointdevente_create' %}">Ajouter un Point de Vente</a>
+  <table>
+    <tr>
+      <th>Nom</th>
+      <th>Localisation</th>
+      <th>Contact</th>
+      <th>Actions</th>
+    </tr>
+    {% for point_de_vente in object_list %}
+      <tr>
+        <td>{{ point_de_vente.name }}</td>
+        <td>{{ point_de_vente.location }}</td>
+        <td>{{ point_de_vente.contact }}</td>
+        <td>
+          <a href="{% url 'pointdevente_update' point_de_vente.pk %}">Modifier</a>
+          <a href="{% url 'pointdevente_delete' point_de_vente.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

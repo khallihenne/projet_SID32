@@ -1,0 +1,14 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h1>Liste des Communes</h1>
+  <ul>
+    {% for commune in object_list %}
+      <li>
+        <a href="{% url 'commune_update' commune.pk %}">{{ commune.name }}</a> 
+        - <a href="{% url 'commune_delete' commune.pk %}">Supprimer</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'commune_create' %}">Créer une nouvelle Commune</a>
+{% endblock %}

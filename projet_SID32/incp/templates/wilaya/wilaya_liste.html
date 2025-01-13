@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Liste des Wilaya</h2>
+  <a href="{% url 'wilaya_creer' %}">Ajouter une Wilaya</a>
+  <table>
+    <tr>
+      <th>Code</th>
+      <th>Nom</th>
+      <th>Actions</th>
+    </tr>
+    {% for wilaya in object_list %}
+      <tr>
+        <td>{{ wilaya.code }}</td>
+        <td>{{ wilaya.name }}</td>
+        <td>
+          <a href="{% url 'wilaya_modifier' wilaya.pk %}">Modifier</a>
+          <a href="{% url 'wilaya_supprimer' wilaya.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

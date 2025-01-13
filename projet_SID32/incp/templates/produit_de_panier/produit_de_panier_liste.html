@@ -1,0 +1,21 @@
+{% block content %}
+  <h2>Liste des Produits dans le Panier</h2>
+  <a href="{% url 'produitdepanier_create' %}">Ajouter un Produit au Panier</a>
+  <table>
+    <tr>
+      <th>Produit</th>
+      <th>Quantité</th>
+      <th>Actions</th>
+    </tr>
+    {% for produit_de_panier in object_list %}
+      <tr>
+        <td>{{ produit_de_panier.produit.name }}</td>
+        <td>{{ produit_de_panier.quantity }}</td>
+        <td>
+          <a href="{% url 'produitdepanier_update' produit_de_panier.pk %}">Modifier</a>
+          <a href="{% url 'produitdepanier_delete' produit_de_panier.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
