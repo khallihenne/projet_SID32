@@ -1,3 +1,4 @@
+{% extends 'base.html' %}
 {% block content %}
   <h2>Liste des Moughataa</h2>
   <a href="{% url 'moughataa_create' %}">Ajouter un Moughataa</a>
@@ -14,10 +15,12 @@
         <td>{{ moughataa.label }}</td>
         <td>{{ moughataa.wilaya.name }}</td>
         <td>
-          <a href="{% url 'moughataa_update' moughataa.pk %}">Modifier</a>
-          <a href="{% url 'moughataa_delete' moughataa.pk %}">Supprimer</a>
+          <a href="{% url 'moughataa_modifier' moughataa.pk %}">Modifier</a>
+          <a href="{% url 'moughataa_supprimer' moughataa.pk %}">Supprimer</a>
         </td>
       </tr>
     {% endfor %}
   </table>
 {% endblock %}
+
+

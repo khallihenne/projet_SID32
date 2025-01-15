@@ -1,8 +1,13 @@
+{% extends "base.html" %}
+
 {% block content %}
-  <h2>Formulaire Produit dans Panier</h2>
+  <h1>{% if object %}Modifier{% else %}Ajouter{% endif %} un Produit au Panier</h1>
+
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Soumettre</button>
+    <button type="submit">{% if object %}Confirmer la modification{% else %}Ajouter{% endif %}</button>
   </form>
+
+  <a href="{% url 'produitdepanier_list' %}">Retour à la liste des Produits dans le Panier</a>
 {% endblock %}

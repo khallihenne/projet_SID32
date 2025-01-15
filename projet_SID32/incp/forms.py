@@ -1,58 +1,65 @@
 from django import forms
+from django.forms.widgets import DateInput
 from .models import (
-    Wilaya, Moughataa, Commune, ProduitType, Produit, PointDeVente, PrixDeProduit, Panier, ProduitDePanier
+    Wilaya, Moughataa, Commune, ProductType, Product, PointOfSale, ProductPrice, Cart, CartProduct
 )
 
 # Formulaire pour Wilaya
 class WilayaForm(forms.ModelForm):
     class Meta:
         model = Wilaya
-        fields = ['name', 'region']
+        fields = ['code', 'name']
 
 # Formulaire pour Moughataa
 class MoughataaForm(forms.ModelForm):
     class Meta:
         model = Moughataa
-        fields = ['name', 'wilaya']
+        fields = ['code', 'label', 'wilaya']
 
 # Formulaire pour Commune
 class CommuneForm(forms.ModelForm):
     class Meta:
         model = Commune
-        fields = ['name', 'moughataa']
+        fields = ['code', 'name', 'moughataa']
 
-# Formulaire pour ProduitType
+# Formulaire pour ProductType
 class ProductTypeForm(forms.ModelForm):
     class Meta:
-        model = ProduitType
-        fields = ['name', 'description']
+        model = ProductType
+        fields = ['code', 'label', 'description']
 
-# Formulaire pour Produit
-class ProduitForm(forms.ModelForm):
+# Formulaire pour Product
+class ProductForm(forms.ModelForm):
     class Meta:
-        model = Produit
-        fields = ['name', 'description', 'price', 'product_type', 'image']
+        model = Product
+        fields = ['code', 'name', 'description', 'unit_measure', 'product_type']
 
-# Formulaire pour PointDeVente
-class PointDeVenteForm(forms.ModelForm):
-    class Meta:
-        model = PointDeVente
-        fields = ['name', 'location', 'contact']
+# Formulaire pour PointOfSale
+class PointOfSaleForm(forms.ModelForm):
 
-# Formulaire pour PrixDeProduit
-class PrixDeProduitForm(forms.ModelForm):
     class Meta:
-        model = PrixDeProduit
-        fields = ['produit', 'price']
+        model = PointOfSale
+        fields = ['name', 'code', 'type', 'gps_lat', 'gps_lon', 'commune']
+        
 
-# Formulaire pour Panier
-class PanierForm(forms.ModelForm):
+# Formulaire pour ProductPrice
+class ProductPriceForm(forms.ModelForm):
     class Meta:
-        model = Panier
-        fields = ['user', 'date_created']
+        model = ProductPrice
+        fields = ['product', 'point_of_sale', 'value', 'date_from', 'date_to']
+        widgets = {
+            'date_from': forms.TextInput(attrs={'type': 'text', 'class': 'datepicker'}),
+            'date_to': forms.TextInput(attrs={'type': 'text', 'class': 'datepicker'}),
+        }
 
-# Formulaire pour ProduitDePanier
-class ProduitDePanierForm(forms.ModelForm):
+# Formulaire pour Cart
+class CartForm(forms.ModelForm):
     class Meta:
-        model = ProduitDePanier
-        fields = ['panier', 'produit', 'quantity']
+        model = Cart
+        fields = ['code', 'name', 'description']
+
+# Formulaire pour CartProduct
+class CartProductForm(forms.ModelForm):
+    class Meta:
+        model = CartProduct
+        fields = ['cart', 'product', 'weighting', 'date_from', 'date_to']

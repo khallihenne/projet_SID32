@@ -1,31 +1,23 @@
-{% extends 'base.html' %}
-
-{% block title %}Liste des Prix{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<h2>Liste des Prix</h2>
-<a href="{% url 'price_create' %}" class="btn btn-success mb-3">Ajouter un Prix</a>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Valeur</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for price in object_list %}
-        <tr>
-            <td>{{ price.id }}</td>
-            <td>{{ price.name }}</td>
-            <td>{{ price.value }}</td>
-            <td>
-                <a href="{% url 'price_update' price.id %}" class="btn btn-primary btn-sm">Modifier</a>
-                <a href="{% url 'price_delete' price.id %}" class="btn btn-danger btn-sm">Supprimer</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+  <h2>Liste des Types de Produit</h2>
+  <a href="{% url 'type_de_produit_create' %}">Ajouter un Type de Produit</a>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Actions</th>
+    </tr>
+    {% for type_de_produit in object_list %}
+      <tr>
+        <td>{{ type_de_produit.id }}</td>
+        <td>{{ type_de_produit.label }}</td>
+        <td>
+          <a href="{% url 'type_de_produit_modifier' type_de_produit.pk %}">Modifier</a>
+          <a href="{% url 'type_de_produit_supprimer' type_de_produit.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}

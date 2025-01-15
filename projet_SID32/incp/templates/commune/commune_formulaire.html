@@ -1,4 +1,4 @@
-{% extends 'base_generic.html' %}
+{% extends "base.html" %}
 
 {% block content %}
   <h1>{% if object %}Modifier{% else %}Créer{% endif %} une Commune</h1>
@@ -6,8 +6,8 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Enregistrer</button>
+    <button type="submit">{% if object %}Confirmer la modification{% else %}Créer{% endif %}</button>
   </form>
 
-  <a href="{% url 'commune_list' %}">Retour à la liste des Communes</a>
+  <a href="{% url 'commune_liste' %}">Retour à la liste des Communes</a>
 {% endblock %}

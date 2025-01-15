@@ -1,8 +1,14 @@
+{% extends "base.html" %}
+
 {% block content %}
-  <h2>Formulaire Prix de Produit</h2>
+  <h1>{% if object %}Modifier{% else %}Créer{% endif %} un Prix de Produit</h1>
+
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Soumettre</button>
+    <button type="submit">{% if object %}Confirmer la modification{% else %}Créer{% endif %}</button>
   </form>
+
+  <a href="{% url 'prixdeproduit_list' %}">Retour à la liste des Prix de Produits</a>
+  
 {% endblock %}

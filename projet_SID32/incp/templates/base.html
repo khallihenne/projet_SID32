@@ -7,6 +7,10 @@
     <title>{% block title %}Mon Application{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <script src="{% static 'js/scripts.js' %}" defer></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 </head>
 <body>
     <!-- Barre de navigation -->
@@ -17,12 +21,12 @@
                     <li><a href="{% url 'wilaya_liste' %}">Wilayas</a></li>
                     <li><a href="{% url 'moughataa_liste' %}">Moughataas</a></li>
                     <li><a href="{% url 'commune_liste' %}">Communes</a></li>
-                    <li><a href="{% url 'type_de_produit_liste' %}">Types de Produit</a></li>
+                    <li><a href="{% url 'product_type_liste' %}">Types de Produit</a></li>
                     <li><a href="{% url 'produit_liste' %}">Produits</a></li>
-                    <li><a href="{% url 'point_de_vente_liste' %}">Points de Vente</a></li>
-                    <li><a href="{% url 'prix_de_produit_liste' %}">Prix des Produits</a></li>
+                    <li><a href="{% url 'point_of_sale_liste' %}">Points de Vente</a></li>
+                    <li><a href="{% url 'prixdeproduit_list' %}">Prix des Produits</a></li>
                     <li><a href="{% url 'panier_liste' %}">Paniers</a></li>
-                    <li><a href="{% url 'produit_de_panier_liste' %}">Produits dans le Panier</a></li>
+                    <li><a href="{% url 'produitdepanier_list' %}">Produits dans le Panier</a></li>
                 </ul>
             </div>
         </nav>

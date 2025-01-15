@@ -1,23 +1,29 @@
+{% extends "base.html" %}
+
 {% block content %}
   <h2>Liste des Produits</h2>
-  <a href="{% url 'produit_create' %}">Ajouter un Produit</a>
-  <table>
-    <tr>
-      <th>Code</th>
-      <th>Nom</th>
-      <th>Description</th>
-      <th>Actions</th>
-    </tr>
-    {% for produit in object_list %}
+  <a href="{% url 'produit_creer' %}" class="btn btn-success mb-3">Ajouter un Produit</a>
+  <table class="table table-bordered">
+    <thead>
       <tr>
-        <td>{{ produit.code }}</td>
-        <td>{{ produit.name }}</td>
-        <td>{{ produit.description }}</td>
-        <td>
-          <a href="{% url 'produit_update' produit.pk %}">Modifier</a>
-          <a href="{% url 'produit_delete' produit.pk %}">Supprimer</a>
-        </td>
+        <th>Code</th>
+        <th>Nom</th>
+        <th>Description</th>
+        <th>Actions</th>
       </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% for produit in object_list %}
+        <tr>
+          <td>{{ produit.code }}</td>
+          <td>{{ produit.name }}</td>
+          <td>{{ produit.description }}</td>
+          <td>
+            <a href="{% url 'produit_modifier' produit.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+            <a href="{% url 'produit_supprimer' produit.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
   </table>
 {% endblock %}

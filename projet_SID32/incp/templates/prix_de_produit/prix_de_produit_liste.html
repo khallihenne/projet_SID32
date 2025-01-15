@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block content %}
   <h2>Liste des Prix de Produits</h2>
   <a href="{% url 'prixdeproduit_create' %}">Ajouter un Prix de Produit</a>
@@ -9,8 +11,8 @@
     </tr>
     {% for prix_de_produit in object_list %}
       <tr>
-        <td>{{ prix_de_produit.produit.name }}</td>
-        <td>{{ prix_de_produit.price }}</td>
+        <td>{{ prix_de_produit.product}}</td>
+        <td>{{ prix_de_produit.value }}</td>
         <td>
           <a href="{% url 'prixdeproduit_update' prix_de_produit.pk %}">Modifier</a>
           <a href="{% url 'prixdeproduit_delete' prix_de_produit.pk %}">Supprimer</a>

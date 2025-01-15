@@ -1,23 +1,29 @@
+{% extends "base.html" %}
+
 {% block content %}
   <h2>Liste des Points de Vente</h2>
-  <a href="{% url 'pointdevente_create' %}">Ajouter un Point de Vente</a>
-  <table>
-    <tr>
-      <th>Nom</th>
-      <th>Localisation</th>
-      <th>Contact</th>
-      <th>Actions</th>
-    </tr>
-    {% for point_de_vente in object_list %}
+  <a href="{% url 'point_of_sale_create' %}" class="btn btn-success mb-3">Ajouter un Point de Vente</a>
+  <table class="table table-bordered">
+    <thead>
       <tr>
-        <td>{{ point_de_vente.name }}</td>
-        <td>{{ point_de_vente.location }}</td>
-        <td>{{ point_de_vente.contact }}</td>
-        <td>
-          <a href="{% url 'pointdevente_update' point_de_vente.pk %}">Modifier</a>
-          <a href="{% url 'pointdevente_delete' point_de_vente.pk %}">Supprimer</a>
-        </td>
+        <th>Nom</th>
+        <th>Code</th>
+        <th>Type</th>
+        <th>Actions</th>
       </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% for point_de_vente in object_list %}
+        <tr>
+          <td>{{ point_de_vente.name }}</td>
+          <td>{{ point_de_vente.code }}</td>
+          <td>{{ point_de_vente.type }}</td>
+          <td>
+            <a href="{% url 'point_of_sale_modifier' point_de_vente.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+            <a href="{% url 'point_of_sale_supprimer' point_de_vente.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
   </table>
 {% endblock %}

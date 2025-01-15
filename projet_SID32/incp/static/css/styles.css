@@ -21,88 +21,21 @@ body {
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--light-gray);
+    min-height: 100vh; /* Pour que le body occupe toujours toute la hauteur de la fenêtre */
+    display: flex;
+    flex-direction: column;
 }
 
+/* Conteneur principal */
 .container {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
+    flex: 1; /* Pour que le contenu prenne tout l'espace disponible */
 }
 
-/* Login page styles */
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.login-box {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-}
-
-.login-box h2 {
-    color: var(--secondary-color);
-    text-align: center;
-    margin-bottom: 0.5rem;
-    font-size: 2rem;
-}
-
-.login-subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 2rem;
-}
-
-.login-form .form-group {
-    margin-bottom: 1.5rem;
-}
-
-.login-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--secondary-color);
-    font-weight: 500;
-}
-
-.login-form input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-.login-form input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.login-button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.login-button:hover {
-    background-color: #357abd;
-}
-
+/* Alerts */
 .alert {
     padding: 1rem;
     border-radius: 5px;
@@ -208,9 +141,17 @@ form {
 
 /* Footer */
 footer {
+    position: fixed; /* Fixer le footer */
+    bottom: 0; /* Toujours en bas */
+    width: 100%; /* S'assurer qu'il occupe toute la largeur */
     background-color: var(--secondary-color);
     color: white;
-    padding: 2rem 0;
-    margin-top: 3rem;
+    padding: 1rem 0; /* Moins de padding pour un footer plus compact */
     text-align: center;
+    z-index: 10; /* Le footer reste au-dessus du contenu si nécessaire */
+}
+
+/* Footer espace en bas de page */
+main {
+    flex: 1; /* Assurer que le main prend tout l'espace disponible */
 }

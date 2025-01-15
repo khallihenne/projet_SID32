@@ -1,9 +1,11 @@
+{% extends "base.html" %}
+
 {% block content %}
   <h2>Confirmer la suppression</h2>
   <form method="post">
     {% csrf_token %}
     <p>Êtes-vous sûr de vouloir supprimer ce Produit du Panier ?</p>
-    <button type="submit">Oui</button>
+    <button type="submit">Confirmer</button>
     <a href="{% url 'produitdepanier_list' %}">Annuler</a>
   </form>
 {% endblock %}

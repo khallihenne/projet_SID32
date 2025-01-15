@@ -1,14 +1,23 @@
-{% extends 'base_generic.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-  <h1>Liste des Communes</h1>
-  <ul>
+  <h2>Liste des Communes</h2>
+  <a href="{% url 'commune_create' %}">Ajouter une Commune</a>
+  <table>
+    <tr>
+      <th>Code</th>
+      <th>Nom</th>
+      <th>Actions</th>
+    </tr>
     {% for commune in object_list %}
-      <li>
-        <a href="{% url 'commune_update' commune.pk %}">{{ commune.name }}</a> 
-        - <a href="{% url 'commune_delete' commune.pk %}">Supprimer</a>
-      </li>
+      <tr>
+        <td>{{ commune.code }}</td>
+        <td>{{ commune.name }}</td>
+        <td>
+          <a href="{% url 'commune_modifier' commune.pk %}">Modifier</a>
+          <a href="{% url 'commune_supprimer' commune.pk %}">Supprimer</a>
+        </td>
+      </tr>
     {% endfor %}
-  </ul>
-  <a href="{% url 'commune_create' %}">Créer une nouvelle Commune</a>
+  </table>
 {% endblock %}

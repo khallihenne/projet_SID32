@@ -1,9 +1,11 @@
+{% extends 'base.html' %}
+
 {% block content %}
   <h2>Confirmer la suppression</h2>
   <form method="post">
     {% csrf_token %}
     <p>Êtes-vous sûr de vouloir supprimer ce Point de Vente ?</p>
-    <button type="submit">Oui</button>
-    <a href="{% url 'pointdevente_list' %}">Annuler</a>
+    <button type="submit" class="btn btn-danger">Confirmer</button>
+    <a href="{% url 'point_of_sale_liste' %}" class="btn btn-secondary">Annuler</a>
   </form>
 {% endblock %}
