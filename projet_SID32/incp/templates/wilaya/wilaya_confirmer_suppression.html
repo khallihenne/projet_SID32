@@ -1,9 +1,17 @@
+{% extends 'base.html' %}
+
 {% block content %}
-  <h2>Confirmer la suppression</h2>
-  <form method="post">
-    {% csrf_token %}
-    <p>Êtes-vous sûr de vouloir supprimer cette Wilaya ?</p>
-    <button type="submit">Oui</button>
-    <a href="{% url 'wilaya_liste' %}">Annuler</a>
-  </form>
+<div class="container">
+    <h2 class="my-4">Confirmer la suppression</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p class="mb-3">Êtes-vous sûr de vouloir supprimer cette Wilaya ?</p>
+        
+        <!-- Bouton "Oui" -->
+        <button type="submit" class="btn btn-danger">Oui</button>
+        
+        <!-- Lien "Annuler" -->
+        <a href="{% url 'wilaya_liste' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
 {% endblock %}

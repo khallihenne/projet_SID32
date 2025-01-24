@@ -1,13 +1,74 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h1>{% if object %}Modifier{% else %}Ajouter{% endif %} un Produit au Panier</h1>
+<div class="container">
+    <h2 class="my-4">Formulaire Produit dans le Panier</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Champ Panier -->
+        <div class="mb-3">
+            <label for="{{ form.cart.id_for_label }}" class="form-label">Panier</label>
+            {{ form.cart }}
+            {% if form.cart.errors %}
+            <div class="alert alert-danger">
+                {{ form.cart.errors }}
+            </div>
+            {% endif %}
+        </div>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% if object %}Confirmer la modification{% else %}Ajouter{% endif %}</button>
-  </form>
+        <!-- Champ Produit -->
+        <div class="mb-3">
+            <label for="{{ form.product.id_for_label }}" class="form-label">Produit</label>
+            {{ form.product }}
+            {% if form.product.errors %}
+            <div class="alert alert-danger">
+                {{ form.product.errors }}
+            </div>
+            {% endif %}
+        </div>
 
-  <a href="{% url 'produitdepanier_list' %}">Retour à la liste des Produits dans le Panier</a>
+        <!-- Champ Pondération -->
+        <div class="mb-3">
+            <label for="{{ form.weighting.id_for_label }}" class="form-label">Pondération (%)</label>
+            {{ form.weighting }}
+            {% if form.weighting.errors %}
+            <div class="alert alert-danger">
+                {{ form.weighting.errors }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Date de Début -->
+        <div class="mb-3">
+            <label for="{{ form.date_from.id_for_label }}" class="form-label">Date de Début</label>
+            {{ form.date_from }}
+            {% if form.date_from.errors %}
+            <div class="alert alert-danger">
+                {{ form.date_from.errors }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Date de Fin -->
+        <div class="mb-3">
+            <label for="{{ form.date_to.id_for_label }}" class="form-label">Date de Fin</label>
+            {{ form.date_to }}
+            {% if form.date_to.errors %}
+            <div class="alert alert-danger">
+                {{ form.date_to.errors }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
 {% endblock %}

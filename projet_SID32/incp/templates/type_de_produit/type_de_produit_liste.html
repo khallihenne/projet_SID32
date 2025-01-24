@@ -1,23 +1,36 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h2>Liste des Types de Produit</h2>
-  <a href="{% url 'type_de_produit_create' %}">Ajouter un Type de Produit</a>
-  <table>
-    <tr>
-      <th>ID</th>
-      <th>Nom</th>
-      <th>Actions</th>
-    </tr>
-    {% for type_de_produit in object_list %}
-      <tr>
-        <td>{{ type_de_produit.id }}</td>
-        <td>{{ type_de_produit.label }}</td>
-        <td>
-          <a href="{% url 'type_de_produit_modifier' type_de_produit.pk %}">Modifier</a>
-          <a href="{% url 'type_de_produit_supprimer' type_de_produit.pk %}">Supprimer</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="container">
+    <h2 class="my-4">Liste des Types de Produit</h2>
+    <a href="{% url 'type_de_produit_create' %}" class="btn btn-primary mb-3">Ajouter</a>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Label</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for type_de_produit in object_list %}
+            <tr>
+                <td>{{ type_de_produit.code }}</td>
+                <td>{{ type_de_produit.label }}</td>
+                <td>{{ type_de_produit.description }}</td>
+                <td>
+                    <a href="{% url 'type_de_produit_modifier' type_de_produit.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-pencil"></i> Modifier
+                    </a>
+                    <a href="{% url 'type_de_produit_supprimer' type_de_produit.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-eraser"></i> Supprimer
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

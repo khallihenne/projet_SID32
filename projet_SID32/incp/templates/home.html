@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">
+                <i class="fas fa-home me-2"></i>Tableau de bord
+            </h1>
+        </div>
+    </div>
+
+    <!-- INPC des 4 derniers mois -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Évolution de l'INPC
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for month_data in last_months_inpc %}
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ month_data.month }}</h5>
+                                    <p class="display-4 mb-0 text-primary">{{ month_data.inpc }}</p>
+                                    <small class="text-muted">Base 100 en 2019</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liens rapides -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-calculator me-2"></i>Calcul de l'INPC
+                    </h5>
+                    <p class="card-text">Calculez l'INPC pour une période spécifique</p>
+                    <a href="{% url 'calculate_inpc' %}" class="btn btn-primary">
+                        Calculer l'INPC
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-box me-2"></i>Gestion des produits
+                    </h5>
+                    <p class="card-text">Gérez la liste des produits et leurs prix</p>
+                    <a href="{% url 'produit_liste' %}" class="btn btn-primary">
+                        Voir les produits
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-shopping-cart me-2"></i>Paniers
+                    </h5>
+                    <p class="card-text">Gérez les paniers de consommation</p>
+                    <a href="{% url 'panier_liste' %}" class="btn btn-primary">
+                        Voir les paniers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

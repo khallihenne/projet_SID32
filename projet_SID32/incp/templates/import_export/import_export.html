@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Import/Export des données{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Import/Export des données</h2>
+
+    <div class="row">
+        <!-- Section Import -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-upload me-2"></i>Importer des données
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'import_data' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="model_type" class="form-label">Sélectionner le type de données</label>
+                            <select name="model_type" id="model_type" class="form-select" required>
+                                <option value="">Choisir...</option>
+                                <option value="wilaya">Wilayas</option>
+                                <option value="moughataa">Moughataas</option>
+                                <option value="commune">Communes</option>
+                                <option value="product_type">Types de Produit</option>
+                                <option value="product">Produits</option>
+                                <option value="point_of_sale">Points de Vente</option>
+                                <option value="product_price">Prix des Produits</option>
+                                <option value="cart">Paniers</option>
+                                <option value="cart_product">Produits dans le Panier</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Fichier Excel (xlsx)</label>
+                            <input type="file" name="file" id="file" class="form-control" accept=".xlsx" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Importer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Export -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-download me-2"></i>Exporter des données
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'export_data' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="export_model_type" class="form-label">Sélectionner le type de données</label>
+                            <select name="model_type" id="export_model_type" class="form-select" required>
+                                <option value="">Choisir...</option>
+                                <option value="wilaya">Wilayas</option>
+                                <option value="moughataa">Moughataas</option>
+                                <option value="commune">Communes</option>
+                                <option value="product_type">Types de Produit</option>
+                                <option value="product">Produits</option>
+                                <option value="point_of_sale">Points de Vente</option>
+                                <option value="product_price">Prix des Produits</option>
+                                <option value="cart">Paniers</option>
+                                <option value="cart_product">Produits dans le Panier</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Exporter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-info-circle me-2"></i>Instructions
+            </h3>
+        </div>
+        <div class="card-body">
+            <h4>Format des fichiers d'import :</h4>
+            <ul>
+                <li>Les fichiers doivent être au format Excel (.xlsx)</li>
+                <li>Chaque fichier doit contenir les colonnes correspondant aux champs du modèle</li>
+                <li>Pour les relations (ForeignKey), utilisez le code de l'élément référencé</li>
+            </ul>
+            <h4>Structure des données :</h4>
+            <ul>
+                <li>Wilayas : code, name</li>
+                <li>Moughataas : code, label, wilaya_code</li>
+                <li>Communes : code, name, moughataa_code</li>
+                <li>Types de Produit : code, label, description</li>
+                <li>Produits : code, name, description, unit_measure, product_type_code</li>
+                <li>Points de Vente : code, type, gps_lat, gps_lon, commune_code</li>
+                <li>Prix des Produits : product_code, point_of_sale_code, value, date_from, date_to</li>
+                <li>Paniers : code, name, description</li>
+                <li>Produits dans le Panier : cart_code, product_code, weighting, date_from, date_to</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

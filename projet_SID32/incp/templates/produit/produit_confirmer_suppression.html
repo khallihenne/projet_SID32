@@ -1,11 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Confirmer la suppression</h2>
-  <form method="post">
-    {% csrf_token %}
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-    <button type="submit" class="btn btn-danger">Confirmer</button>
-    <a href="{% url 'produit_liste' %}" class="btn btn-secondary">Annuler</a>
-  </form>
+<div class="container">
+    <h1 class="my-4">Confirmer la suppression</h1>
+    <p class="mb-3">Êtes-vous sûr de vouloir supprimer le produit suivant ?</p>
+    
+    <ul>
+        <li><strong>Code :</strong> {{ produit.code }}</li>
+        <li><strong>Nom :</strong> {{ produit.name }}</li>
+        <li><strong>Description :</strong> {{ produit.description }}</li>
+        <li><strong>Unité de Mesure :</strong> {{ produit.unit_measure }}</li>
+        <li><strong>Type de Produit :</strong> {{ produit.product_type.label }}</li>
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i> Supprimer
+        </button>
+        <a href="{% url 'produit_liste' %}" class="btn btn-secondary">
+            Annuler
+        </a>
+    </form>
+</div>
 {% endblock %}

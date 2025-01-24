@@ -1,13 +1,47 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h1>{% if object %}Modifier{% else %}Créer{% endif %} un Panier</h1>
+<div class="container">
+    <h2 class="my-4">Formulaire Panier</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <!-- Champ Code -->
+        <div class="mb-3">
+            <label for="id_code" class="form-label">Code</label>
+            <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value|default:'' }}" required>
+            {% if form.code.errors %}
+                <div class="text-danger">
+                    {{ form.code.errors }}
+                </div>
+            {% endif %}
+        </div>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% if object %}Confirmer la modification{% else %}Créer{% endif %}</button>
-  </form>
+        <!-- Champ Nom -->
+        <div class="mb-3">
+            <label for="id_name" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value|default:'' }}" required>
+            {% if form.name.errors %}
+                <div class="text-danger">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
+        </div>
 
-  <a href="{% url 'panier_liste' %}">Retour à la liste des Paniers</a>
+        <!-- Champ Description -->
+        <div class="mb-3">
+            <label for="id_description" class="form-label">Description</label>
+            <textarea class="form-control" id="id_description" name="description" rows="3" required>{{ form.description.value|default:'' }}</textarea>
+            {% if form.description.errors %}
+                <div class="text-danger">
+                    {{ form.description.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
 {% endblock %}

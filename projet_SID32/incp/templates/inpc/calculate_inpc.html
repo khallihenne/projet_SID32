@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Calcul de l'INPC{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">
+                <i class="fas fa-calculator me-2"></i>Calcul de l'INPC
+            </h1>
+            <p class="lead">Calculez l'Indice National des Prix à la Consommation par rapport à l'année de base 2019</p>
+        </div>
+    </div>
+
+    <!-- Formulaire de sélection -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    {{ form.year.label_tag }}
+                    {{ form.year }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.month.label_tag }}
+                    {{ form.month }}
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator me-2"></i>Calculer l'INPC
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if has_results %}
+    <!-- Résultat global -->
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <h3>INPC Global pour {{ selected_month }} {{ selected_year }}</h3>
+            <div class="display-1 text-primary">{{ global_inpc }}</div>
+            <p class="text-muted">Base 100 en 2019</p>
+        </div>
+    </div>
+
+    <!-- Résultats détaillés -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">INPC par type de produit</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Type de produit</th>
+                            <th class="text-end">Prix moyen 2019</th>
+                            <th class="text-end">Prix moyen {{ selected_year }}</th>
+                            <th class="text-end">Indice</th>
+                            <th class="text-end">Pondération</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inpc_by_type %}
+                        <tr>
+                            <td>{{ item.type }}</td>
+                            <td class="text-end">{{ item.base_price }}</td>
+                            <td class="text-end">{{ item.current_price }}</td>
+                            <td class="text-end">{{ item.index }}</td>
+                            <td class="text-end">{{ item.weight }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

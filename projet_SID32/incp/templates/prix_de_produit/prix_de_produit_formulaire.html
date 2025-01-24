@@ -1,14 +1,78 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h1>{% if object %}Modifier{% else %}Créer{% endif %} un Prix de Produit</h1>
+<div class="container">
+    <h2 class="my-4">Formulaire Prix de Produit</h2>
+    <form method="post">
+        {% csrf_token %}
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% if object %}Confirmer la modification{% else %}Créer{% endif %}</button>
-  </form>
+        <!-- Champ Valeur -->
+        <div class="mb-3">
+            <label for="{{ form.value.id_for_label }}" class="form-label">Valeur</label>
+            {{ form.value }}
+            {% if form.value.errors %}
+                <div class="text-danger">
+                    {{ form.value.errors }}
+                </div>
+            {% endif %}
+        </div>
 
-  <a href="{% url 'prixdeproduit_list' %}">Retour à la liste des Prix de Produits</a>
-  
+        <!-- Champ Date de Début -->
+        <div class="mb-3">
+            <label for="{{ form.date_from.id_for_label }}" class="form-label">Date de Début</label>
+            <input type="text" 
+                   name="{{ form.date_from.name }}" 
+                   id="{{ form.date_from.id_for_label }}" 
+                   class="form-control" 
+                   placeholder="DD/MM/YY" 
+                   value="{{ form.date_from.value|default_if_none:'' }}">
+            {% if form.date_from.errors %}
+                <div class="text-danger">
+                    {{ form.date_from.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Date de Fin -->
+        <div class="mb-3">
+            <label for="{{ form.date_to.id_for_label }}" class="form-label">Date de Fin</label>
+            <input type="text" 
+                   name="{{ form.date_to.name }}" 
+                   id="{{ form.date_to.id_for_label }}" 
+                   class="form-control" 
+                   placeholder="DD/MM/YY" 
+                   value="{{ form.date_to.value|default_if_none:'' }}">
+            {% if form.date_to.errors %}
+                <div class="text-danger">
+                    {{ form.date_to.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Produit -->
+        <div class="mb-3">
+            <label for="{{ form.product.id_for_label }}" class="form-label">Produit</label>
+            {{ form.product }}
+            {% if form.product.errors %}
+                <div class="text-danger">
+                    {{ form.product.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Point de Vente -->
+        <div class="mb-3">
+            <label for="{{ form.point_of_sale.id_for_label }}" class="form-label">Point de Vente</label>
+            {{ form.point_of_sale }}
+            {% if form.point_of_sale.errors %}
+                <div class="text-danger">
+                    {{ form.point_of_sale.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
 {% endblock %}

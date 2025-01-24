@@ -1,23 +1,39 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h2>Liste des Produits dans le Panier</h2>
-  <a href="{% url 'produitdepanier_create' %}">Ajouter un Produit au Panier</a>
-  <table>
-    <tr>
-      <th>Produit</th>
-      <th>Quantité</th>
-      <th>Actions</th>
-    </tr>
-    {% for produit_de_panier in object_list %}
-      <tr>
-        <td>{{ produit_de_panier.product }}</td>
-        <td>{{ produit_de_panier.weighting }}</td>
-        <td>
-          <a href="{% url 'produitdepanier_update' produit_de_panier.pk %}">Modifier</a>
-          <a href="{% url 'produitdepanier_delete' produit_de_panier.pk %}">Supprimer</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="container">
+    <h2 class="my-4">Liste des Produits dans le Panier</h2>
+    <a href="{% url 'produit_de_panier_create' %}" class="btn btn-primary mb-3">Ajouter</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Panier</th>
+                <th>Produit</th>
+                <th>Pondération (%)</th>
+                <th>Date de Début</th>
+                <th>Date de Fin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in object_list %}
+            <tr>
+                <td>{{ item.cart.name }}</td>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.weighting }}</td>
+                <td>{{ item.date_from|date:"d/m/Y" }}</td>
+                <td>{{ item.date_to|date:"d/m/Y" }}</td>
+                <td>
+                    <a href="{% url 'produit_de_panier_update' item.id %}" class="btn btn-warning btn-sm">✔ Modifier</a>
+                    <a href="{% url 'produit_de_panier_delete' item.id %}" class="btn btn-danger btn-sm">✔ Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Aucun produit dans les paniers</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

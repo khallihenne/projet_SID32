@@ -1,26 +1,36 @@
 {% extends 'base.html' %}
+
 {% block content %}
-  <h2>Liste des Moughataa</h2>
-  <a href="{% url 'moughataa_create' %}">Ajouter un Moughataa</a>
-  <table>
-    <tr>
-      <th>Code</th>
-      <th>Label</th>
-      <th>Wilaya</th>
-      <th>Actions</th>
-    </tr>
-    {% for moughataa in object_list %}
-      <tr>
-        <td>{{ moughataa.code }}</td>
-        <td>{{ moughataa.label }}</td>
-        <td>{{ moughataa.wilaya.name }}</td>
-        <td>
-          <a href="{% url 'moughataa_modifier' moughataa.pk %}">Modifier</a>
-          <a href="{% url 'moughataa_supprimer' moughataa.pk %}">Supprimer</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="container">
+    <h2 class="my-4">Liste des Moughataas</h2>
+    <a href="{% url 'moughataa_create' %}" class="btn btn-primary mb-3">Ajouter</a>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Label</th>
+                <th>Wilaya</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for moughataa in object_list %}
+            <tr>
+                <td>{{ moughataa.code }}</td>
+                <td>{{ moughataa.label }}</td>
+                <td>{{ moughataa.wilaya.name }}</td>
+                <td>
+                    <a href="{% url 'moughataa_modifier' moughataa.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-pencil"></i> Modifier
+                    </a>
+                    <a href="{% url 'moughataa_supprimer' moughataa.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-eraser"></i> Supprimer
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
-
-

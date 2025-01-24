@@ -1,13 +1,31 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h1>{% if object %}Modifier{% else %}Créer{% endif %} un Type de Produit</h1>
+<div class="container">
+    <h2 class="my-4">Formulaire Type de Produit</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Champ Code -->
+        <div class="mb-3">
+            <label for="{{ form.code.id_for_label }}" class="form-label">Code</label>
+            {{ form.code }}
+        </div>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% if object %}Confirmer la modification{% else %}Créer{% endif %}</button>
-  </form>
+        <!-- Champ Label -->
+        <div class="mb-3">
+            <label for="{{ form.label.id_for_label }}" class="form-label">Label</label>
+            {{ form.label }}
+        </div>
 
-  <a href="{% url 'product_type_liste' %}">Retour à la liste des Types de Produit</a>
+        <!-- Champ Description -->
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
 {% endblock %}

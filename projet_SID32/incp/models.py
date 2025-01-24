@@ -54,23 +54,24 @@ class PointOfSale(models.Model):
         ('shop', 'Boutique'),
         ('other', 'Autre')
     ]
-    name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, unique=True, validators=[MinLengthValidator(2)])
-    type = models.CharField(max_length=20, choices=SALE_TYPES)
-    gps_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    gps_lon = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    commune = models.ForeignKey(Commune, on_delete=models.PROTECT, related_name='points_of_sale')
+    
+    code = models.CharField(max_length=10, unique=True)
+    type = models.CharField(max_length=50, choices=SALE_TYPES)  # Ajouter choices ici
+    gps_lat = models.FloatField(default=0.0)
+    gps_lon = models.FloatField(default=0.0)
+    commune = models.ForeignKey(Commune, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.code} - {self.get_type_display()}"
+        return f"{self.code} - {self.get_type_display()}"  # Maintenant ça fonctionne
+
 
 
 class ProductPrice(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='prices')
     point_of_sale = models.ForeignKey(PointOfSale, on_delete=models.PROTECT, related_name='product_prices')
     value = models.DecimalField(max_digits=10, decimal_places=2)
-    date_from = models.DateField()
-    date_to = models.DateField(null=True, blank=True)
+    date_from = models.DateField(default='2000-01-01')
+    date_to = models.DateField(default='2099-12-31')
 
     def __str__(self):
         return f"{self.product.name} - {self.value} ({self.date_from})"

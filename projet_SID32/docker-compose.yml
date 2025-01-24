@@ -5,7 +5,10 @@ services:
     build:
       context: .
     container_name: django_app
-    command: python manage.py runserver 0.0.0.0:23021
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:23021"
     volumes:
       - .:/app
     ports:
@@ -22,9 +25,9 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: mysql_db
     ports:
       - "24021:3306"
+    container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: 23021
       MYSQL_DATABASE: inpc

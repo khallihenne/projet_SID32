@@ -1,23 +1,40 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h2>Liste des Prix de Produits</h2>
-  <a href="{% url 'prixdeproduit_create' %}">Ajouter un Prix de Produit</a>
-  <table>
-    <tr>
-      <th>Produit</th>
-      <th>Prix</th>
-      <th>Actions</th>
-    </tr>
-    {% for prix_de_produit in object_list %}
-      <tr>
-        <td>{{ prix_de_produit.product}}</td>
-        <td>{{ prix_de_produit.value }}</td>
-        <td>
-          <a href="{% url 'prixdeproduit_update' prix_de_produit.pk %}">Modifier</a>
-          <a href="{% url 'prixdeproduit_delete' prix_de_produit.pk %}">Supprimer</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="container">
+    <h2 class="my-4">Liste des Prix de Produits</h2>
+    <a href="{% url 'prix_de_produit_create' %}" class="btn btn-primary mb-3">Ajouter</a>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Valeur</th>
+                <th>Date de Début</th>
+                <th>Date de Fin</th>
+                <th>Produit</th>
+                <th>Point de Vente</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prix_de_produit in prix_de_produits %}
+            <tr>
+                <td>{{ prix_de_produit.value }}</td>
+                <td>{{ prix_de_produit.date_from }}</td>
+                <td>{{ prix_de_produit.date_to }}</td>
+                <td>{{ prix_de_produit.product }}</td>
+                <td>{{ prix_de_produit.point_of_sale.code }}</td>
+                <td>
+                    <a href="{% url 'prix_de_produit_update' prix_de_produit.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-pencil"></i> Modifier
+                    </a>
+                    <a href="{% url 'prix_de_produit_delete' prix_de_produit.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-eraser"></i> Supprimer
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

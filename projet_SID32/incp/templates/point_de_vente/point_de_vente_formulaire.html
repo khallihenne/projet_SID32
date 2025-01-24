@@ -1,10 +1,78 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h2>Formulaire Point de Vente</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Soumettre</button>
-  </form>
+<div class="container">
+    <h2 class="my-4">Formulaire Point de Vente</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Champ Code -->
+        <div class="mb-3">
+            <label for="{{ form.code.id_for_label }}" class="form-label">Code</label>
+            {{ form.code }}
+            {% if form.code.errors %}
+                <div class="text-danger">
+                    {% for error in form.code.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Type -->
+        <div class="mb-3">
+            <label for="{{ form.type.id_for_label }}" class="form-label">Type</label>
+            {{ form.type }}
+            {% if form.type.errors %}
+                <div class="text-danger">
+                    {% for error in form.type.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ GPS Latitude -->
+        <div class="mb-3">
+            <label for="{{ form.gps_lat.id_for_label }}" class="form-label">GPS Latitude</label>
+            {{ form.gps_lat }}
+            {% if form.gps_lat.errors %}
+                <div class="text-danger">
+                    {% for error in form.gps_lat.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ GPS Longitude -->
+        <div class="mb-3">
+            <label for="{{ form.gps_lon.id_for_label }}" class="form-label">GPS Longitude</label>
+            {{ form.gps_lon }}
+            {% if form.gps_lon.errors %}
+                <div class="text-danger">
+                    {% for error in form.gps_lon.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Champ Commune -->
+        <div class="mb-3">
+            <label for="{{ form.commune.id_for_label }}" class="form-label">Commune</label>
+            {{ form.commune }}
+            {% if form.commune.errors %}
+                <div class="text-danger">
+                    {% for error in form.commune.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
 {% endblock %}

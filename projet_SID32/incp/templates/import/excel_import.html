@@ -1,0 +1,146 @@
+{% extends 'inpc_core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Carte pour l'importation de données -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Importation de Données</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Formulaire d'importation -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+
+                        <!-- Instructions d'importation -->
+                        <div class="alert alert-info mt-3">
+                            <strong>Instructions d'Importation:</strong>
+                            <ul>
+                                <li>Choisissez le type de données à importer</li>
+                                <li>Sélectionnez un fichier Excel (.xlsx ou .xls)</li>
+                                <li>Assurez-vous que le fichier respecte le format requis</li>
+                                <li>Les colonnes doivent correspondre exactement aux champs du modèle</li>
+                                <li>La première ligne doit contenir les en-têtes des colonnes</li>
+                            </ul>
+                            <p class="mb-0">
+                                <a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#importFormatModal">
+                                    Voir les Formats d'Importation
+                                </a>
+                            </p>
+                        </div>
+
+                        <!-- Bouton de soumission -->
+                        <button type="submit" class="btn btn-primary mt-3">
+                            <i class="fas fa-upload me-2"></i>Importer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Affichage des messages -->
+            {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal pour les formats d'importation -->
+    <div class="modal fade" id="importFormatModal" tabindex="-1" aria-labelledby="importFormatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="importFormatModalLabel">Formats d'Importation</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tableau des formats d'importation -->
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Type de Données</th>
+                                <th>Colonnes Requises</th>
+                                <th>Exemple</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Wilaya -->
+                            <tr>
+                                <td>Wilaya</td>
+                                <td>code, name</td>
+                                <td>01, Wilaya 1</td>
+                            </tr>
+                            <!-- Moughataa -->
+                            <tr>
+                                <td>Moughataa</td>
+                                <td>code, label, wilaya</td>
+                                <td>M001, Moughataa 1, 01</td>
+                            </tr>
+                            <!-- Commune -->
+                            <tr>
+                                <td>Commune</td>
+                                <td>code, name, moughataa</td>
+                                <td>C001, Commune 1, M001</td>
+                            </tr>
+                            <!-- ProductType -->
+                            <tr>
+                                <td>Type de Produit</td>
+                                <td>code, label, description</td>
+                                <td>PT001, Alimentation, Produits alimentaires</td>
+                            </tr>
+                            <!-- Product -->
+                            <tr>
+                                <td>Produit</td>
+                                <td>code, name, description, unit_measure, product_type</td>
+                                <td>P001, Produit 1, Description, kg, PT001</td>
+                            </tr>
+                            <!-- PointOfSale -->
+                            <tr>
+                                <td>Point de Vente</td>
+                                <td>code, type, gps_lat, gps_lon, commune</td>
+                                <td>POS001, Magasin, 36.1234, -5.6789, C001</td>
+                            </tr>
+                            <!-- ProductPrice -->
+                            <tr>
+                                <td>Prix des Produits</td>
+                                <td>valeur, date_from, date_to, produit, point_of_sale</td>
+                                <td>100.0, 01/01/2025, 31/12/2025, P001, POS001</td>
+                            </tr>
+                            <!-- Cart -->
+                            <tr>
+                                <td>Panier</td>
+                                <td>code, name, description</td>
+                                <td>CART001, Panier 1, Description</td>
+                            </tr>
+                            <!-- CartProduct -->
+                            <tr>
+                                <td>Produit dans le Panier</td>
+                                <td>cart, product, weighting, date_from, date_to</td>
+                                <td>CART001, P001, 60.0, 01/01/2025, 31/12/2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Conseils supplémentaires -->
+                    <div class="alert alert-warning mt-3">
+                        <strong>Conseil:</strong> Téléchargez et utilisez nos fichiers modèles pour chaque type de données.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

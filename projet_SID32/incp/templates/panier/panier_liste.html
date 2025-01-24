@@ -1,25 +1,35 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-  <h2>Liste des Paniers</h2>
-  <a href="{% url 'panier_create' %}">Ajouter un Panier</a>
-  <table>
-    <tr>
-      <th>Nom</th>
-      <th>Code</th>
-      <th>Description</th>
-      <th>Actions</th>
-    </tr>
-    {% for panier in object_list %}
-      <tr>
-        <td>{{ panier.name }}</td>
-        <td>{{ panier.code }}</td>
-        <td>{{ panier.description }}</td>
-        <td>
-          <a href="{% url 'panier_update' panier.pk %}">Modifier</a>
-          <a href="{% url 'panier_delete' panier.pk %}">Supprimer</a>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="container">
+    <h2 class="my-4">Liste des Paniers</h2>
+    <a href="{% url 'panier_create' %}" class="btn btn-primary mb-3">Ajouter</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for panier in object_list %}
+            <tr>
+                <td>{{ panier.code }}</td>
+                <td>{{ panier.name }}</td>
+                <td>{{ panier.description }}</td>
+                <td>
+                    <a href="{% url 'panier_update' panier.id %}" class="btn btn-warning btn-sm">✔ Modifier</a>
+                    <a href="{% url 'panier_delete' panier.id %}" class="btn btn-danger btn-sm">✔ Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Aucun panier trouvé</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

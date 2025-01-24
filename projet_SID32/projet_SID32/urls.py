@@ -17,9 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
-
+from incp import views
+from django.contrib import admin
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from django.contrib.auth import views as auth_views
 urlpatterns = [
-    path('', RedirectView.as_view(url='/wilaya/', permanent=False), name='index'),
-    path('admin/', admin.site.urls),
-    path('', include('incp.urls')),
+    path('admin/', admin.site.urls),  # Interface d'administration Django
+    path('', include('incp.urls')),   # Incluez les URLs de votre application `incp`
+    
+    # URLs pour l'authentification
+    
 ]

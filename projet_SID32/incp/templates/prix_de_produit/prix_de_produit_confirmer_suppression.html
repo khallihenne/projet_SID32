@@ -1,9 +1,24 @@
+{% extends 'base.html' %}
+
 {% block content %}
-  <h2>Confirmer la suppression</h2>
-  <form method="post">
-    {% csrf_token %}
-    <p>Êtes-vous sûr de vouloir supprimer ce Prix de Produit ?</p>
-    <button type="submit">Oui</button>
-    <a href="{% url 'prixdeproduit_list' %}">Annuler</a>
-  </form>
+<div class="container">
+    <h2 class="my-4">Confirmer la Suppression</h2>
+    <p>Êtes-vous sûr de vouloir supprimer le prix de produit suivant ?</p>
+    
+    {% for prix_de_produit in prix_de_produits %}
+            <tr>
+                <td>{{ prix_de_produit.value }}</td>
+                <td>{{ prix_de_produit.date_from }}</td>
+                <td>{{ prix_de_produit.date_to }}</td>
+                <td>{{ prix_de_produit.product }}</td>
+                <td>{{ prix_de_produit.point_of_sale.code }}</td>
+            </tr>
+    {% endfor %}
+
+    <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'prix_de_produit_liste' %}" class="btn btn-secondary">Annuler</a>
+        <button type="submit" class="btn btn-danger">Confirmer la Suppression</button>
+    </form>
+</div>
 {% endblock %}
