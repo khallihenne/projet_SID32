@@ -14,20 +14,20 @@ services:
     ports:
       - "23021:23021"
     depends_on:
-      - db
+      - mysql_db_23021
     environment:
       - DEBUG=1
       - DB_NAME=inpc
       - DB_USER=root
       - DB_PASSWORD=23021
-      - DB_HOST=db
+      - DB_HOST=mysql_db_23021
       - DB_PORT=3306
 
-  db:
+  mysql_db_23021:
     image: mysql:8.0
     ports:
       - "24021:3306"
-    container_name: mysql_db
+    container_name: mysql_db_23021
     environment:
       MYSQL_ROOT_PASSWORD: 23021
       MYSQL_DATABASE: inpc
