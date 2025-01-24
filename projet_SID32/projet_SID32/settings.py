@@ -148,3 +148,8 @@ LOGOUT_REDIRECT_URL = 'login'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://138.201.52.29:25021",
+    "https://138.201.52.29:25021"
+]
