@@ -3,3 +3,4 @@ mysqlclient
 openpyxl
 pandas
 django-import-export==4.3.4
+django-chartjs

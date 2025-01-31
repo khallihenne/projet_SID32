@@ -6,15 +6,23 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db import models
 from .models import (
     Wilaya, Moughataa, Commune, ProductType, Product, PointOfSale, ProductPrice, Cart, CartProduct,
-    
 )
-from django.core.exceptions import ValidationError
 from datetime import datetime
+from django.core.exceptions import ValidationError
 from .forms import CartProductForm, ProductFilterForm, INPCCalculForm   # Importer le formulaire CartProductForm et ProductFilterForm
 from django.db.models import Avg
 from django.db.models.functions import Extract
+from dateutil.relativedelta import relativedelta
+import pandas as pd
+from openpyxl import Workbook
+from django.http import HttpResponse
+from django.views.generic import TemplateView
+from django.db.models import Count
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 # --- VUES POUR Wilaya ---
 class WilayaListeView(LoginRequiredMixin,ListView):
@@ -235,8 +243,13 @@ class ProductPriceListeView(LoginRequiredMixin,ListView):
     template_name = "prix_de_produit/prix_de_produit_liste.html"
     context_object_name = 'prix_de_produits'
 
-    
-class ProductPriceCreerView(LoginRequiredMixin,CreateView):
+from datetime import datetime
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView
+from .models import ProductPrice
+
+class ProductPriceCreerView(LoginRequiredMixin, CreateView):
     login_url = 'login'
     model = ProductPrice
     fields = ['product', 'point_of_sale', 'value', 'date_from', 'date_to']
@@ -246,22 +259,25 @@ class ProductPriceCreerView(LoginRequiredMixin,CreateView):
         return reverse_lazy('prix_de_produit_liste')
 
     def form_valid(self, form):
-        # Valider les dates avant de sauvegarder
         date_from = form.cleaned_data.get('date_from')
         date_to = form.cleaned_data.get('date_to')
 
-        try:
-            date_from_obj = datetime.strptime(date_from, '%d/%m/%Y')
-            date_to_obj = datetime.strptime(date_to, '%d/%m/%Y')
-        except ValueError:
-            form.add_error('date_from', "La date doit être au format DD/MM/YYYY.")
-            return self.form_invalid(form)
+        # Assurer que les dates sont bien au format `dd/MM/YYYY`
+        if isinstance(date_from, str):
+            date_from = datetime.strptime(date_from, '%d/%m/%Y').date()
 
-        if date_from_obj > date_to_obj:
+        if isinstance(date_to, str):
+            date_to = datetime.strptime(date_to, '%d/%m/%Y').date()
+
+        if date_from > date_to:
             form.add_error('date_to', "La date de fin doit être postérieure à la date de début.")
             return self.form_invalid(form)
 
+        form.instance.date_from = date_from
+        form.instance.date_to = date_to
+
         return super().form_valid(form)
+
 
 class ProductPriceModifierView(LoginRequiredMixin,UpdateView):
     login_url = 'login'
@@ -440,11 +456,156 @@ def home(request):
             'month': date.strftime('%B %Y'),
             'inpc': global_inpc
         })
+
+    # Données pour le Line Chart : Évolution des prix moyens des produits de base
+    products = Product.objects.filter(code__in=['P01', 'P02', 'P06'])  # Riz, Tomates, Pain
+    price_data = {}
+    labels = []
     
+    for year in range(2019, 2025):
+        for month in range(1, 13):
+            date = f"{year}-{month:02d}"
+            if date not in labels:
+                labels.append(date)
+    
+    for product in products:
+        prices = []
+        for date in labels:
+            year, month = date.split('-')
+            avg_price = ProductPrice.objects.filter(
+                product=product,
+                date_from__year=year,
+                date_from__month=month
+            ).aggregate(Avg('value'))['value__avg'] or 0
+            prices.append(round(avg_price, 2))
+        price_data[product.name] = prices
+
+    # Données pour le Pie Chart : Répartition des types de points de vente
+    pos_types = PointOfSale.objects.values('type').annotate(
+        count=Count('id')
+    )
+    pos_labels = [item['type'] for item in pos_types]
+    pos_data = [item['count'] for item in pos_types]
+
+    # Données pour le Bar Chart : Nombre de produits par type
+    product_types = ProductType.objects.annotate(product_count=models.Count('products'))
+    type_labels = [pt.label for pt in product_types]
+    type_data = [pt.product_count for pt in product_types]
+
+    # Calcul de l'INPC pour les 4 derniers mois
+    current_date = datetime.now()
+    last_months = []
+    for i in range(4):
+        month = current_date.month - i
+        year = current_date.year
+        if month <= 0:
+            month += 12
+            year -= 1
+        last_months.append({
+            'month': f"{year}-{month:02d}",
+            'inpc': calculate_inpc_for_month(year, month)
+        })
+
+    # Données pour le graphique linéaire (évolution des prix)
+    basic_products = ['Riz', 'Tomates', 'Pain']
+    price_data = {}
+    labels = []
+    
+    # Générer les dates de 2019 à 2024
+    for year in range(2019, 2025):
+        for month in range(1, 13):
+            labels.append(f"{year}-{month:02d}")
+    
+    # Récupérer les prix moyens pour chaque produit
+    for product_name in basic_products:
+        product = Product.objects.filter(name=product_name).first()
+        if product:
+            prices = []
+            for date_str in labels:
+                year, month = map(int, date_str.split('-'))
+                avg_price = ProductPrice.objects.filter(
+                    product=product,
+                    date_from__year=year,
+                    date_from__month=month
+                ).aggregate(avg_price=Avg('value'))['avg_price'] or 0
+                prices.append(float(avg_price))
+            price_data[product_name] = prices
+
+    # Préparer les données pour le graphique linéaire en format JSON
+    datasets = []
+    for product_name, prices in price_data.items():
+        datasets.append({
+            'label': product_name,
+            'data': prices,
+            'fill': False,
+            'tension': 0.1
+        })
+    price_data_json = json.dumps(datasets, cls=DjangoJSONEncoder)
+
+    # Données pour le graphique circulaire (types de points de vente)
+    pos_types = PointOfSale.objects.values('type').annotate(count=models.Count('id'))
+    pos_labels = [pos['type'] for pos in pos_types]
+    pos_data = [pos['count'] for pos in pos_types]
+
+    # Données pour le graphique à barres (produits par catégorie)
+    product_types = ProductType.objects.annotate(product_count=models.Count('products'))
+    type_labels = [pt.label for pt in product_types]
+    type_data = [pt.product_count for pt in product_types]
+
     context = {
-        'last_months_inpc': last_months_inpc
+        'last_months_inpc': last_months_inpc,
+        'labels': json.dumps(labels),
+        'price_data_json': price_data_json,
+        'pos_labels': json.dumps(pos_labels),
+        'pos_data': json.dumps(pos_data),
+        'type_labels': json.dumps(type_labels),
+        'type_data': json.dumps(type_data),
     }
+    
     return render(request, 'home.html', context)
+
+def calculate_inpc_for_month(year, month):
+    """
+    Calcule l'INPC pour un mois et une année donnés
+    Base 100 en 2019
+    """
+    try:
+        # Calculer la moyenne des prix pour ce mois
+        current_prices = ProductPrice.objects.filter(
+            date_from__year=year,
+            date_from__month=month
+        ).values('product').annotate(avg_price=Avg('value'))
+
+        # Calculer la moyenne des prix pour 2019 (année de base)
+        base_prices = ProductPrice.objects.filter(
+            date_from__year=2019,
+            date_from__month=month
+        ).values('product').annotate(avg_price=Avg('value'))
+
+        # Convertir en dictionnaires pour un accès plus facile
+        current_dict = {p['product']: p['avg_price'] for p in current_prices if p['avg_price']}
+        base_dict = {p['product']: p['avg_price'] for p in base_prices if p['avg_price']}
+
+        # Calculer l'INPC uniquement pour les produits qui ont des prix dans les deux périodes
+        common_products = set(current_dict.keys()) & set(base_dict.keys())
+        
+        if not common_products:
+            return 0
+
+        # Calculer la somme des variations relatives
+        total_variation = sum(
+            (current_dict[pid] / base_dict[pid]) * 100
+            for pid in common_products
+        )
+
+        # Calculer la moyenne (INPC)
+        inpc = total_variation / len(common_products)
+        
+        return round(inpc, 2)
+    except Exception as e:
+        print(f"Erreur dans le calcul de l'INPC pour {month}/{year}: {str(e)}")
+        return 0
+
 @login_required(login_url='login')
 def wilaya_liste(request):
     # Logique pour afficher la liste des wilayas
@@ -484,77 +645,77 @@ def produit_de_panier_liste(request):
 
 
  # import 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import ExcelImportForm
-import pandas as pd
-from .models import (
-    ProductType, Product, Wilaya, Moughataa, Commune, 
-    PointOfSale, ProductPrice, Cart, CartProduct
-)
-from datetime import datetime
-@login_required(login_url='login')
-def excel_import(request):
-    if request.method == 'POST':
-        form = ExcelImportForm(request.POST, request.FILES)
-        if form.is_valid():
-            uploaded_file = form.cleaned_data['file']
-            model_type = form.cleaned_data['model_type']
+# from django.shortcuts import render, redirect
+# from django.contrib import messages
+# from .forms import ExcelImportForm
+# import pandas as pd
+# from .models import (
+#     ProductType, Product, Wilaya, Moughataa, Commune, 
+#     PointOfSale, ProductPrice, Cart, CartProduct
+# )
+# from datetime import datetime
+# @login_required(login_url='login')
+# def excel_import(request):
+#     if request.method == 'POST':
+#         form = ExcelImportForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             uploaded_file = form.cleaned_data['file']
+#             model_type = form.cleaned_data['model_type']
 
-            try:
-                # Lire le fichier Excel
-                df = pd.read_excel(uploaded_file)
+#             try:
+#                 # Lire le fichier Excel
+#                 df = pd.read_excel(uploaded_file)
 
-                # Méthodes d'importation pour chaque modèle
-                import_methods = {
-                    'product_type': import_product_types,
-                    'product': import_products,
-                    'wilaya': import_wilayas,
-                    'moughataa': import_moughataa,
-                    'commune': import_communes,
-                    'point_of_sale': import_points_of_sale,
-                    'product_price': import_product_prices,
-                    'cart': import_carts,
-                    'cart_product': import_cart_products
-                }
+#                 # Méthodes d'importation pour chaque modèle
+#                 import_methods = {
+#                     'product_type': import_product_types,
+#                     'product': import_products,
+#                     'wilaya': import_wilayas,
+#                     # 'moughataa': import_moughataa,
+#                     'commune': import_communes,
+#                     'point_of_sale': import_points_of_sale,
+#                     'product_price': import_product_prices,
+#                     'cart': import_carts,
+#                     'cart_product': import_cart_products
+#                 }
 
-                # Appeler la méthode d'importation appropriée
-                import_method = import_methods.get(model_type)
-                if import_method:
-                    import_method(df)
-                    messages.success(request, f'Importation de {model_type} réussie!')
-                else:
-                    messages.error(request, 'Type de modèle non reconnu')
+#                 # Appeler la méthode d'importation appropriée
+#                 import_method = import_methods.get(model_type)
+#                 if import_method:
+#                     import_method(df)
+#                     messages.success(request, f'Importation de {model_type} réussie!')
+#                 else:
+#                     messages.error(request, 'Type de modèle non reconnu')
 
-            except Exception as e:
-                messages.error(request, f'Erreur lors de l\'importation: {str(e)}')
+#             except Exception as e:
+#                 messages.error(request, f'Erreur lors de l\'importation: {str(e)}')
 
-            return redirect('import_export')  # Redirige vers la page d'import/export après succès
-    else:
-        form = ExcelImportForm()
+#             return redirect('import_export')  # Redirige vers la page d'import/export après succès
+#     else:
+#         form = ExcelImportForm()
 
-    return render(request, 'import/excel_import.html', {'form': form})
+#     return render(request, 'import/excel_import.html', {'form': form})
 
-# Méthodes d'importation pour chaque modèle
-@login_required(login_url='login')
-def import_product_types(df):
-    for _, row in df.iterrows():
-        ProductType.objects.create(
-            code=row['code'],
-            label=row['label'],
-            description=row.get('description', '')  # Optionnel
-        )
-@login_required(login_url='login')
-def import_products(df):
-    for _, row in df.iterrows():
-        product_type = ProductType.objects.get(code=row['product_type_code'])
-        Product.objects.create(
-            code=row['code'],
-            name=row['name'],
-            description=row.get('description', ''),  # Optionnel
-            unit_measure=row['unit_measure'],
-            product_type=product_type
-        )
+# # Méthodes d'importation pour chaque modèle
+# @login_required(login_url='login')
+# def import_product_types(df):
+#     for _, row in df.iterrows():
+#         ProductType.objects.create(
+#             code=row['code'],
+#             label=row['label'],
+#             description=row.get('description', '')  # Optionnel
+#         )
+# @login_required(login_url='login')
+# def import_products(df):
+#     for _, row in df.iterrows():
+#         product_type = ProductType.objects.get(code=row['product_type_code'])
+#         Product.objects.create(
+#             code=row['code'],
+#             name=row['name'],
+#             description=row.get('description', ''),  # Optionnel
+#             unit_measure=row['unit_measure'],
+#             product_type=product_type
+#         )
 
 # ... (ajoutez les autres méthodes d'importation ici)
 
@@ -576,8 +737,35 @@ def import_data(request):
         excel_file = request.FILES['file']
         
         try:
+            # Vérifier que le fichier est un fichier Excel
+            if not excel_file.name.endswith(('.xlsx', '.xls')):
+                messages.error(request, 'Le fichier doit être au format Excel (.xlsx ou .xls).')
+                return redirect('import_export')
+
             df = pd.read_excel(excel_file)
-            
+            print("Colonnes du fichier importé :", df.columns)
+            print("Contenu du DataFrame :", df.head())
+
+            # Vérifiez les colonnes requises en fonction du type de modèle
+            required_columns = {
+                'wilaya': ['code', 'name'],
+                'moughataa': ['code', 'label', 'wilaya_code'],
+                'commune': ['code', 'name', 'moughataa_code'],
+                'product_type': ['code', 'label'],
+                'product': ['code', 'name', 'unit_measure', 'product_type_code'],
+                'point_of_sale': ['code', 'type', 'gps_lat', 'gps_lon', 'commune_code'],
+                'product_price': ['product_code', 'point_of_sale_code', 'date_from', 'value'],
+                'cart': ['code', 'name'],
+                'cart_product': ['cart_code', 'product_code', 'date_from', 'weighting', 'date_to'],
+            }
+
+            if model_type in required_columns:
+                missing_columns = [col for col in required_columns[model_type] if col not in df.columns]
+                if missing_columns:
+                    messages.error(request, f"Colonnes manquantes dans le fichier: {', '.join(missing_columns)}")
+                    return redirect('import_export')
+
+            # Appel de la fonction d'importation appropriée
             if model_type == 'wilaya':
                 import_wilayas(df)
             elif model_type == 'moughataa':
@@ -596,14 +784,27 @@ def import_data(request):
                 import_carts(df)
             elif model_type == 'cart_product':
                 import_cart_products(df)
-            
+
             messages.success(request, f'Import des données {model_type} réussi!')
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'import: {str(e)}')
-        
+
         return redirect('import_export')
-    
+
     return redirect('import_export')
+
+def import_wilayas(df):
+    try:
+        for _, row in df.iterrows():
+            if pd.isna(row['code']) or pd.isna(row['name']):
+                raise ValueError("Les colonnes 'code' et 'name' ne peuvent pas être vides")
+                
+            Wilaya.objects.update_or_create(
+                code=str(row['code']).strip(),
+                defaults={'name': str(row['name']).strip()}
+            )
+    except Exception as e:
+        raise Exception(f"Erreur lors de l'import des wilayas: {str(e)}")
 @login_required(login_url='login')
 def export_data(request):
     if request.method == 'POST':
@@ -642,14 +843,7 @@ def export_data(request):
     return redirect('import_export')
 
 # Fonctions d'import pour chaque modèle
-@login_required(login_url='login')
-def import_wilayas(df):
-    for _, row in df.iterrows():
-        Wilaya.objects.update_or_create(
-            code=row['code'],
-            defaults={'name': row['name']}
-        )
-@login_required(login_url='login')
+
 def import_moughataas(df):
     for _, row in df.iterrows():
         wilaya = Wilaya.objects.get(code=row['wilaya_code'])
@@ -660,8 +854,14 @@ def import_moughataas(df):
                 'wilaya': wilaya
             }
         )
-@login_required(login_url='login')
+
 def import_communes(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['moughataa_code', 'code', 'name']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         moughataa = Moughataa.objects.get(code=row['moughataa_code'])
         Commune.objects.update_or_create(
@@ -671,8 +871,14 @@ def import_communes(df):
                 'moughataa': moughataa
             }
         )
-@login_required(login_url='login')
+
 def import_product_types(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['code', 'label']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         ProductType.objects.update_or_create(
             code=row['code'],
@@ -681,8 +887,14 @@ def import_product_types(df):
                 'description': row.get('description', '')
             }
         )
-@login_required(login_url='login')
+
 def import_products(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['product_type_code', 'code', 'name', 'unit_measure']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         product_type = ProductType.objects.get(code=row['product_type_code'])
         Product.objects.update_or_create(
@@ -694,8 +906,14 @@ def import_products(df):
                 'product_type': product_type
             }
         )
-@login_required(login_url='login')
+
 def import_points_of_sale(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['commune_code', 'code', 'type', 'gps_lat', 'gps_lon']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         commune = Commune.objects.get(code=row['commune_code'])
         PointOfSale.objects.update_or_create(
@@ -707,8 +925,14 @@ def import_points_of_sale(df):
                 'commune': commune
             }
         )
-@login_required(login_url='login')
+
 def import_product_prices(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['product_code', 'point_of_sale_code', 'date_from', 'value']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         product = Product.objects.get(code=row['product_code'])
         point_of_sale = PointOfSale.objects.get(code=row['point_of_sale_code'])
@@ -721,8 +945,14 @@ def import_product_prices(df):
                 'date_to': row['date_to']
             }
         )
-@login_required(login_url='login')
+
 def import_carts(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['code', 'name']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         Cart.objects.update_or_create(
             code=row['code'],
@@ -731,8 +961,14 @@ def import_carts(df):
                 'description': row.get('description', '')
             }
         )
-@login_required(login_url='login')
+
 def import_cart_products(df):
+    # Vérifier si les colonnes nécessaires existent dans le DataFrame
+    required_columns = ['cart_code', 'product_code', 'date_from', 'weighting', 'date_to']
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"La colonne '{column}' est manquante dans le DataFrame.")
+
     for _, row in df.iterrows():
         cart = Cart.objects.get(code=row['cart_code'])
         product = Product.objects.get(code=row['product_code'])
@@ -933,3 +1169,6 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'Vous avez été déconnecté.')
     return redirect('login')
+
+
+# chart

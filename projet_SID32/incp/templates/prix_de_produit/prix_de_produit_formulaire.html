@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <h2 class="my-4">Formulaire Prix de Produit</h2>
-    <form method="post">
+    <form method="post" onsubmit="convertDatesBeforeSubmit()">
         {% csrf_token %}
 
         <!-- Champ Valeur -->
@@ -19,13 +19,13 @@
 
         <!-- Champ Date de Début -->
         <div class="mb-3">
-            <label for="{{ form.date_from.id_for_label }}" class="form-label">Date de Début</label>
+            <label for="date_from" class="form-label">Date de Début</label>
             <input type="text" 
-                   name="{{ form.date_from.name }}" 
-                   id="{{ form.date_from.id_for_label }}" 
+                   name="date_from" 
+                   id="date_from" 
                    class="form-control" 
-                   placeholder="DD/MM/YY" 
-                   value="{{ form.date_from.value|default_if_none:'' }}">
+                   placeholder="DD/MM/YYYY" 
+                   value="{{ form.date_from.value|date:'d/m/Y' }}">
             {% if form.date_from.errors %}
                 <div class="text-danger">
                     {{ form.date_from.errors }}
@@ -35,13 +35,13 @@
 
         <!-- Champ Date de Fin -->
         <div class="mb-3">
-            <label for="{{ form.date_to.id_for_label }}" class="form-label">Date de Fin</label>
+            <label for="date_to" class="form-label">Date de Fin</label>
             <input type="text" 
-                   name="{{ form.date_to.name }}" 
-                   id="{{ form.date_to.id_for_label }}" 
+                   name="date_to" 
+                   id="date_to" 
                    class="form-control" 
-                   placeholder="DD/MM/YY" 
-                   value="{{ form.date_to.value|default_if_none:'' }}">
+                   placeholder="DD/MM/YYYY" 
+                   value="{{ form.date_to.value|date:'d/m/Y' }}">
             {% if form.date_to.errors %}
                 <div class="text-danger">
                     {{ form.date_to.errors }}
@@ -75,4 +75,21 @@
         <button type="submit" class="btn btn-primary">Soumettre</button>
     </form>
 </div>
+
+<!-- Script pour convertir les dates avant envoi -->
+<script>
+    function convertDatesBeforeSubmit() {
+        document.getElementById("date_from").value = formatDateToYYYYMMDD(document.getElementById("date_from").value);
+        document.getElementById("date_to").value = formatDateToYYYYMMDD(document.getElementById("date_to").value);
+    }
+
+    function formatDateToYYYYMMDD(dateStr) {
+        let parts = dateStr.split("/");
+        if (parts.length === 3) {
+            return parts[2] + "-" + parts[1] + "-" + parts[0];
+        }
+        return dateStr; // Si le format est incorrect, ne rien changer
+    }
+</script>
+
 {% endblock %}

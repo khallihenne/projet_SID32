@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path
+
 from .views import (
     WilayaListeView, WilayaCreerView, WilayaModifierView, WilayaSupprimerView,
     MoughataaListeView, MoughataaCreerView, MoughataaModifierView, MoughataaSupprimerView,
@@ -88,4 +89,8 @@ urlpatterns = [
     path('export-data/', views.export_data, name='export_data'),
     # path('import/', views.excel_import, name='excel_import'),
     path('inpc/calculate/', views.calculate_inpc, name='calculate_inpc'),
+
+
+
+
    ]

@@ -44,28 +44,38 @@ class PointOfSaleForm(forms.ModelForm):
         fields = [ 'code', 'type', 'gps_lat', 'gps_lon', 'commune']
         
 
-# Formulaire pour ProductPrice
-class ProductPriceForm(forms.Form):
-    valeur = forms.FloatField(label="Valeur")
-    date_from = forms.CharField(label="Date de Début")
-    date_to = forms.CharField(label="Date de Fin")
-    produit = forms.CharField(label="Produit")
-    point_of_sale = forms.CharField(label="Point de Vente")
+from django import forms
+from datetime import datetime
+from django.core.exceptions import ValidationError
+from .models import ProductPrice
+
+class ProductPriceForm(forms.ModelForm):
+    class Meta:
+        model = ProductPrice
+        fields = ['product', 'point_of_sale', 'value', 'date_from', 'date_to']
+        widgets = {
+            'date_from': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'}),
+            'date_to': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'}),
+        }
 
     def clean_date_from(self):
-        date_from = self.cleaned_data['date_from']
-        try:
-            datetime.strptime(date_from, '%d/%m/%Y')
-        except ValueError:
-            raise ValidationError("La date doit être au format DD/MM/YYYY.")
+        date_from = self.cleaned_data.get('date_from')
+
+        if isinstance(date_from, str):
+            try:
+                date_from = datetime.strptime(date_from, '%d/%m/%Y').date()
+            except ValueError:
+                raise ValidationError("Format invalide. Utilisez le format DD/MM/YYYY.")
         return date_from
 
     def clean_date_to(self):
-        date_to = self.cleaned_data['date_to']
-        try:
-            datetime.strptime(date_to, '%d/%m/%Y')
-        except ValueError:
-            raise ValidationError("La date doit être au format DD/MM/YYYY.")
+        date_to = self.cleaned_data.get('date_to')
+
+        if isinstance(date_to, str):
+            try:
+                date_to = datetime.strptime(date_to, '%d/%m/%Y').date()
+            except ValueError:
+                raise ValidationError("Format invalide. Utilisez le format DD/MM/YYYY.")
         return date_to
 
     def clean(self):
@@ -73,11 +83,11 @@ class ProductPriceForm(forms.Form):
         date_from = cleaned_data.get('date_from')
         date_to = cleaned_data.get('date_to')
 
-        if date_from and date_to:
-            date_from_obj = datetime.strptime(date_from, '%d/%m/%Y')
-            date_to_obj = datetime.strptime(date_to, '%d/%m/%Y')
-            if date_from_obj > date_to_obj:
-                raise ValidationError("La date de fin doit être postérieure à la date de début.")
+        if date_from and date_to and date_from > date_to:
+            raise ValidationError("La date de fin doit être postérieure à la date de début.")
+
+        return cleaned_data
+
 # Formulaire pour Cart
 class CartForm(forms.ModelForm):
     class Meta:
@@ -197,4 +207,18 @@ class INPCCalculForm(forms.Form):
         widget=forms.Select(attrs={
             'class': 'form-select'
         })
+    )
+
+#  chart
+class INPCForm(forms.Form):
+    product_type = forms.ModelChoiceField(
+        queryset=ProductType.objects.all(), 
+        label="Type de produit", 
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    year = forms.IntegerField(
+        label="Année", 
+        min_value=2000, 
+        max_value=2099, 
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
     )

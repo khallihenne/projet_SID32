@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Accueil{% endblock %}
 
@@ -35,6 +36,51 @@
                         </div>
                         {% endfor %}
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row mt-4">
+        <!-- Line Chart -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Évolution des prix moyens des produits de base
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Répartition des points de vente
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="posTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Produits par catégorie
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="productTypeChart"></canvas>
                 </div>
             </div>
         </div>
@@ -83,4 +129,108 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Utility functions for colors
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function generateColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            colors.push(getRandomColor());
+        }
+        return colors;
+    }
+
+    // Line Chart
+    const priceCtx = document.getElementById('priceChart').getContext('2d');
+    const labels = JSON.parse('{{ labels|escapejs }}');
+    const priceData = {
+        labels: labels,
+        datasets: JSON.parse('{{ price_data_json|escapejs }}')
+    };
+    new Chart(priceCtx, {
+        type: 'line',
+        data: priceData,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Évolution des prix moyens'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Prix (MRU)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Pie Chart
+    const posCtx = document.getElementById('posTypeChart').getContext('2d');
+    const posLabels = JSON.parse('{{ pos_labels|escapejs }}');
+    const posData = JSON.parse('{{ pos_data|escapejs }}');
+    new Chart(posCtx, {
+        type: 'pie',
+        data: {
+            labels: posLabels,
+            datasets: [{
+                data: posData,
+                backgroundColor: generateColors(posData.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Bar Chart
+    const typeCtx = document.getElementById('productTypeChart').getContext('2d');
+    const typeLabels = JSON.parse('{{ type_labels|escapejs }}');
+    const typeData = JSON.parse('{{ type_data|escapejs }}');
+    new Chart(typeCtx, {
+        type: 'bar',
+        data: {
+            labels: typeLabels,
+            datasets: [{
+                label: 'Nombre de produits',
+                data: typeData,
+                backgroundColor: generateColors(typeData.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de produits'
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

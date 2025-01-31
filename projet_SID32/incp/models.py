@@ -71,7 +71,7 @@ class ProductPrice(models.Model):
     point_of_sale = models.ForeignKey(PointOfSale, on_delete=models.PROTECT, related_name='product_prices')
     value = models.DecimalField(max_digits=10, decimal_places=2)
     date_from = models.DateField(default='2000-01-01')
-    date_to = models.DateField(default='2099-12-31')
+    date_to = models.DateField(default='2099-01-31')
 
     def __str__(self):
         return f"{self.product.name} - {self.value} ({self.date_from})"
