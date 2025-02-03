@@ -387,11 +387,6 @@ class CartProductSupprimerView(LoginRequiredMixin,DeleteView):
     
 
 #  page home:
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-from django.db.models import Avg
-from django.db.models.functions import Extract
-
 @login_required(login_url='login')
 def home(request):
     # Obtenir la date actuelle
@@ -469,6 +464,9 @@ def home(request):
         # Ajouter les données pour le graphique (12 mois)
         inpc_labels.insert(0, month_name)
         inpc_values.insert(0, round(float(inpc), 1))  
+
+    # ⚠️ **Inverser la liste pour afficher de gauche à droite** (November → December → January → February)
+    last_months_inpc.reverse()
 
     # Données pour le Line Chart : Évolution des prix moyens des produits de base
     products = Product.objects.filter(code__in=['P01', 'P02', 'P06'])  # Riz, Tomates, Pain
@@ -952,12 +950,12 @@ def import_cart_products(df):
         )
 
 # Fonctions d'export pour chaque modèle
-@login_required(login_url='login')
+
 def export_wilayas():
     wilayas = Wilaya.objects.all()
     data = [{'code': w.code, 'name': w.name} for w in wilayas]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_moughataas():
     moughataas = Moughataa.objects.all()
     data = [{
@@ -966,7 +964,7 @@ def export_moughataas():
         'wilaya_code': m.wilaya.code
     } for m in moughataas]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_communes():
     communes = Commune.objects.all()
     data = [{
@@ -975,7 +973,7 @@ def export_communes():
         'moughataa_code': c.moughataa.code
     } for c in communes]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_product_types():
     product_types = ProductType.objects.all()
     data = [{
@@ -984,7 +982,7 @@ def export_product_types():
         'description': pt.description
     } for pt in product_types]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_products():
     products = Product.objects.all()
     data = [{
@@ -995,7 +993,7 @@ def export_products():
         'product_type_code': p.product_type.code
     } for p in products]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_points_of_sale():
     points = PointOfSale.objects.all()
     data = [{
@@ -1006,7 +1004,7 @@ def export_points_of_sale():
         'commune_code': p.commune.code
     } for p in points]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_product_prices():
     prices = ProductPrice.objects.all()
     data = [{
@@ -1017,7 +1015,7 @@ def export_product_prices():
         'date_to': p.date_to
     } for p in prices]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_carts():
     carts = Cart.objects.all()
     data = [{
@@ -1026,7 +1024,7 @@ def export_carts():
         'description': c.description
     } for c in carts]
     return pd.DataFrame(data)
-@login_required(login_url='login')
+
 def export_cart_products():
     cart_products = CartProduct.objects.all()
     data = [{
