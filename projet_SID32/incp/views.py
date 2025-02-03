@@ -397,11 +397,13 @@ def home(request):
     # Obtenir la date actuelle
     current_date = datetime.now()
     
-    # Liste pour stocker les INPC des 4 derniers mois
+    # Liste pour stocker les INPC des 12 derniers mois
     last_months_inpc = []
+    inpc_labels = []
+    inpc_values = []
     
-    # Pour chacun des 4 derniers mois
-    for i in range(4):
+    # Pour chacun des 12 derniers mois
+    for i in range(12):
         # Calculer la date du mois
         date = current_date - relativedelta(months=i)
         year = date.year
@@ -436,7 +438,7 @@ def home(request):
             
             # Calculer l'indice pour ce type
             if base_avg > 0:
-                index = (current_avg / base_avg) * 100
+                index = float((current_avg / base_avg) * 100)  
             else:
                 index = 0
                 
@@ -444,126 +446,93 @@ def home(request):
             products = CartProduct.objects.filter(
                 product__product_type=product_type
             )
-            type_weight = sum(cp.weighting for cp in products)
+            type_weight = float(sum(cp.weighting for cp in products))  
             total_weight += type_weight
             weighted_sum += index * type_weight
         
         # Calculer l'INPC global pour ce mois
-        global_inpc = round(weighted_sum / total_weight if total_weight > 0 else 0, 2)
+        if total_weight > 0:
+            inpc = float(weighted_sum / total_weight)  
+        else:
+            inpc = 0
+            
+        # Formater la date pour l'affichage
+        month_name = date.strftime('%B %Y')
         
-        # Ajouter à la liste
-        last_months_inpc.append({
-            'month': date.strftime('%B %Y'),
-            'inpc': global_inpc
-        })
+        # Ajouter les données pour l'affichage des cartes (4 derniers mois seulement)
+        if i < 4:
+            last_months_inpc.append({
+                'month': month_name,
+                'inpc': f"{inpc:.1f}"
+            })
+        
+        # Ajouter les données pour le graphique (12 mois)
+        inpc_labels.insert(0, month_name)
+        inpc_values.insert(0, round(float(inpc), 1))  
 
     # Données pour le Line Chart : Évolution des prix moyens des produits de base
     products = Product.objects.filter(code__in=['P01', 'P02', 'P06'])  # Riz, Tomates, Pain
     price_data = {}
-    labels = []
+    price_labels = []
     
     for year in range(2019, 2025):
         for month in range(1, 13):
             date = f"{year}-{month:02d}"
-            if date not in labels:
-                labels.append(date)
+            if date not in price_labels:
+                price_labels.append(date)
     
+    datasets = []
     for product in products:
         prices = []
-        for date in labels:
-            year, month = date.split('-')
+        for date in price_labels:
+            year, month = map(int, date.split('-'))
             avg_price = ProductPrice.objects.filter(
                 product=product,
                 date_from__year=year,
                 date_from__month=month
-            ).aggregate(Avg('value'))['value__avg'] or 0
-            prices.append(round(avg_price, 2))
-        price_data[product.name] = prices
-
-    # Données pour le Pie Chart : Répartition des types de points de vente
-    pos_types = PointOfSale.objects.values('type').annotate(
-        count=Count('id')
-    )
-    pos_labels = [item['type'] for item in pos_types]
-    pos_data = [item['count'] for item in pos_types]
-
-    # Données pour le Bar Chart : Nombre de produits par type
-    product_types = ProductType.objects.annotate(product_count=models.Count('products'))
-    type_labels = [pt.label for pt in product_types]
-    type_data = [pt.product_count for pt in product_types]
-
-    # Calcul de l'INPC pour les 4 derniers mois
-    current_date = datetime.now()
-    last_months = []
-    for i in range(4):
-        month = current_date.month - i
-        year = current_date.year
-        if month <= 0:
-            month += 12
-            year -= 1
-        last_months.append({
-            'month': f"{year}-{month:02d}",
-            'inpc': calculate_inpc_for_month(year, month)
-        })
-
-    # Données pour le graphique linéaire (évolution des prix)
-    basic_products = ['Riz', 'Tomates', 'Pain']
-    price_data = {}
-    labels = []
-    
-    # Générer les dates de 2019 à 2024
-    for year in range(2019, 2025):
-        for month in range(1, 13):
-            labels.append(f"{year}-{month:02d}")
-    
-    # Récupérer les prix moyens pour chaque produit
-    for product_name in basic_products:
-        product = Product.objects.filter(name=product_name).first()
-        if product:
-            prices = []
-            for date_str in labels:
-                year, month = map(int, date_str.split('-'))
-                avg_price = ProductPrice.objects.filter(
-                    product=product,
-                    date_from__year=year,
-                    date_from__month=month
-                ).aggregate(avg_price=Avg('value'))['avg_price'] or 0
-                prices.append(float(avg_price))
-            price_data[product_name] = prices
-
-    # Préparer les données pour le graphique linéaire en format JSON
-    datasets = []
-    for product_name, prices in price_data.items():
+            ).aggregate(avg_price=Avg('value'))['avg_price'] or 0
+            prices.append(float(avg_price))
+        
         datasets.append({
-            'label': product_name,
+            'label': product.name,
             'data': prices,
             'fill': False,
             'tension': 0.1
         })
-    price_data_json = json.dumps(datasets, cls=DjangoJSONEncoder)
 
-    # Données pour le graphique circulaire (types de points de vente)
-    pos_types = PointOfSale.objects.values('type').annotate(count=models.Count('id'))
-    pos_labels = [pos['type'] for pos in pos_types]
-    pos_data = [pos['count'] for pos in pos_types]
+    # Données pour le Pie Chart : Répartition des types de points de vente
+    pos_types = PointOfSale.objects.values('type').annotate(count=Count('id'))
+    pos_labels = [item['type'] for item in pos_types]
+    pos_data = [float(item['count']) for item in pos_types]
 
-    # Données pour le graphique à barres (produits par catégorie)
-    product_types = ProductType.objects.annotate(product_count=models.Count('products'))
+    # Données pour le Bar Chart : Nombre de produits par type
+    product_types = ProductType.objects.annotate(product_count=Count('products'))
     type_labels = [pt.label for pt in product_types]
-    type_data = [pt.product_count for pt in product_types]
+    type_data = [float(pt.product_count) for pt in product_types]
 
+    # Préparer le contexte
     context = {
         'last_months_inpc': last_months_inpc,
-        'labels': json.dumps(labels),
-        'price_data_json': price_data_json,
-        'pos_labels': json.dumps(pos_labels),
-        'pos_data': json.dumps(pos_data),
-        'type_labels': json.dumps(type_labels),
-        'type_data': json.dumps(type_data),
+        'inpc_data': {
+            'labels': json.dumps(inpc_labels),
+            'values': json.dumps(inpc_values)
+        },
+        'price_data': {
+            'labels': json.dumps(price_labels),
+            'datasets': json.dumps(datasets)
+        },
+        'pos_data': {
+            'labels': json.dumps(pos_labels),
+            'values': json.dumps(pos_data)
+        },
+        'type_data': {
+            'labels': json.dumps(type_labels),
+            'values': json.dumps(type_data)
+        }
     }
     
     return render(request, 'home.html', context)
-
+# 
 def calculate_inpc_for_month(year, month):
     """
     Calcule l'INPC pour un mois et une année donnés

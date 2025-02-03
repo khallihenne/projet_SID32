@@ -23,7 +23,8 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <!-- Cartes des 4 derniers mois -->
+                    <div class="row mb-4">
                         {% for month_data in last_months_inpc %}
                         <div class="col-md-3">
                             <div class="card bg-light">
@@ -36,14 +37,21 @@
                         </div>
                         {% endfor %}
                     </div>
+                    
+                    <!-- Graphique d'évolution sur 12 mois -->
+                    <div class="row">
+                        <div class="col-12">
+                            <canvas id="inpcChart" height="300"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Graphiques -->
+    <!-- Autres Graphiques -->
     <div class="row mt-4">
-        <!-- Line Chart -->
+        <!-- Line Chart - Prix moyens -->
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header">
@@ -57,7 +65,7 @@
             </div>
         </div>
 
-        <!-- Pie Chart -->
+        <!-- Pie Chart - Points de vente -->
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
@@ -71,7 +79,7 @@
             </div>
         </div>
 
-        <!-- Bar Chart -->
+        <!-- Bar Chart - Produits par catégorie -->
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header">
@@ -129,12 +137,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+{% block extra_js %}
 <script>
-    // Utility functions for colors
+    // Fonction utilitaire pour générer des couleurs aléatoires
     function getRandomColor() {
         const letters = '0123456789ABCDEF';
         let color = '#';
@@ -152,16 +159,70 @@
         return colors;
     }
 
-    // Line Chart
+    // Graphique d'évolution de l'INPC
+    const inpcCtx = document.getElementById('inpcChart').getContext('2d');
+    const inpcLabels = JSON.parse('{{ inpc_data.labels|escapejs }}');
+    const inpcValues = JSON.parse('{{ inpc_data.values|escapejs }}');
+    
+    new Chart(inpcCtx, {
+        type: 'line',
+        data: {
+            labels: inpcLabels,
+            datasets: [{
+                label: 'INPC (Base 100 en 2019)',
+                data: inpcValues,
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Évolution de l\'INPC sur les 12 derniers mois'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'INPC'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mois'
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique d'évolution des prix moyens
     const priceCtx = document.getElementById('priceChart').getContext('2d');
-    const labels = JSON.parse('{{ labels|escapejs }}');
-    const priceData = {
-        labels: labels,
-        datasets: JSON.parse('{{ price_data_json|escapejs }}')
-    };
+    const priceLabels = JSON.parse('{{ price_data.labels|escapejs }}');
+    const priceDatasets = JSON.parse('{{ price_data.datasets|escapejs }}');
+    
     new Chart(priceCtx, {
         type: 'line',
-        data: priceData,
+        data: {
+            labels: priceLabels,
+            datasets: priceDatasets.map(dataset => ({
+                ...dataset,
+                borderColor: getRandomColor(),
+                borderWidth: 2
+            }))
+        },
         options: {
             responsive: true,
             plugins: {
@@ -182,10 +243,11 @@
         }
     });
 
-    // Pie Chart
+    // Graphique de répartition des points de vente
     const posCtx = document.getElementById('posTypeChart').getContext('2d');
-    const posLabels = JSON.parse('{{ pos_labels|escapejs }}');
-    const posData = JSON.parse('{{ pos_data|escapejs }}');
+    const posLabels = JSON.parse('{{ pos_data.labels|escapejs }}');
+    const posData = JSON.parse('{{ pos_data.values|escapejs }}');
+    
     new Chart(posCtx, {
         type: 'pie',
         data: {
@@ -205,10 +267,11 @@
         }
     });
 
-    // Bar Chart
+    // Graphique des produits par catégorie
     const typeCtx = document.getElementById('productTypeChart').getContext('2d');
-    const typeLabels = JSON.parse('{{ type_labels|escapejs }}');
-    const typeData = JSON.parse('{{ type_data|escapejs }}');
+    const typeLabels = JSON.parse('{{ type_data.labels|escapejs }}');
+    const typeData = JSON.parse('{{ type_data.values|escapejs }}');
+    
     new Chart(typeCtx, {
         type: 'bar',
         data: {

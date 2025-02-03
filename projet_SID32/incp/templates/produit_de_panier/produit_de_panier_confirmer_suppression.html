@@ -6,7 +6,7 @@
     <p>Êtes-vous sûr de vouloir supprimer ce produit du panier ?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Supprimer</button>
+        <button type="submit" class="btn btn-danger">Oui</button>
         <a href="{% url 'produit_de_panier_liste' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>

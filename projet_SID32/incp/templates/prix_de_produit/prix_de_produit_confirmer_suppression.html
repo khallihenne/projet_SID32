@@ -17,8 +17,9 @@
 
     <form method="post">
         {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Oui</button>
         <a href="{% url 'prix_de_produit_liste' %}" class="btn btn-secondary">Annuler</a>
-        <button type="submit" class="btn btn-danger">Confirmer la Suppression</button>
+    
     </form>
 </div>
 {% endblock %}
